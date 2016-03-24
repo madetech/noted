@@ -8,16 +8,19 @@
 
 import Cocoa
 
-class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
+class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate, NSTextViewDelegate {
+    
     var fileNames: [String]!
     @IBOutlet var fileNameTableView: NSTableView!
     @IBOutlet var fileContentsView: NSTextView!
+    @IBOutlet var queryFieldView: NSTextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         loadNotes()
         fileNameTableView.setDelegate(self)
         fileNameTableView.setDataSource(self)
+        fileContentsView.delegate = self
     }
     
     func loadNotes(query: String = "") {
@@ -37,6 +40,12 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
             } else {
                 return String(file).rangeOfString(query) != nil
             }
+        }
+    }
+    
+    override func keyUp(theEvent: NSEvent) {
+        if theEvent.keyCode == 53 {
+            queryFieldView.becomeFirstResponder()
         }
     }
     
