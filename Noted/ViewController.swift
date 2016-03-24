@@ -46,6 +46,8 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     override func keyUp(theEvent: NSEvent) {
         if theEvent.keyCode == 53 {
             queryFieldView.becomeFirstResponder()
+        } else {
+            super.keyUp(theEvent)
         }
     }
     
