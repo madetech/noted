@@ -26,7 +26,30 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         let files = fs.enumeratorAtPath(directoryPath())
         fileNames = files?.filter(isTextFile).map({(file) -> String in String(file)})
     }
-
+    
+    @IBAction func newFile(sender: AnyObject) {
+        let saveDialog = NSSavePanel()
+        saveDialog.runModal()
+        let newFilePath = saveDialog.URL?.path
+        let myNewFileContents = ""
+        do {
+            try myNewFileContents.writeToFile(newFilePath!, atomically: false, encoding: NSUTF8StringEncoding)
+        } catch {
+            print("can't save")
+        }
+        
+        loadNotes()
+        fileNameTableView.reloadData()
+    }
+    
+    @IBAction func saveFile(sender: AnyObject) {
+        do {
+            try fileContentsView.string!.writeToFile(selectedFilePath(), atomically: false, encoding: NSUTF8StringEncoding)
+        } catch {
+            print("Failed to save")
+        }
+        
+    }
     
     func isTextFile(file: AnyObject) -> Bool {
         return file.pathExtension == "txt"
@@ -51,9 +74,13 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     }
     
     func tableViewSelectionDidChange(notification: NSNotification) {
-        let fileContents = tryFileContents(filePath(fileNames[fileNameTableView.selectedRow]))
+        let fileContents = tryFileContents(selectedFilePath())
         
         fileContentsView.string = fileContents
+    }
+    
+    func selectedFilePath() -> String {
+        return filePath(fileNames[fileNameTableView.selectedRow])
     }
     
     func tryFileContents(filePath: String) -> String {
