@@ -10,13 +10,14 @@ import Cocoa
 
 class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
     var fileNames: [String]!
-    @IBOutlet var fileNameTable: NSTableView!
+    @IBOutlet var fileNameTableView: NSTableView!
+    @IBOutlet var fileContentsView: NSTextView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         loadNotes()
-        fileNameTable.setDelegate(self)
-        fileNameTable.setDataSource(self)
+        fileNameTableView.setDelegate(self)
+        fileNameTableView.setDataSource(self)
     }
     
     func loadNotes() {
@@ -32,7 +33,11 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
     }
     
     func directoryPath() -> String {
-        return NSHomeDirectory() + "/Dropbox/Notes"
+        return NSHomeDirectory() + "/Dropbox/Notes/"
+    }
+    
+    func filePath(fileName: String) -> String {
+        return directoryPath() + fileName
     }
     
     func numberOfRowsInTableView(tableView: NSTableView) -> Int {
@@ -43,6 +48,21 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         let cell = tableView.makeViewWithIdentifier(tableColumn!.identifier, owner: self) as! NSTableCellView
         cell.textField?.stringValue = fileNames[row]
         return cell;
+    }
+    
+    func tableViewSelectionDidChange(notification: NSNotification) {
+        let fileContents = tryFileContents(filePath(fileNames[fileNameTableView.selectedRow]))
+        
+        fileContentsView.string = fileContents
+    }
+    
+    func tryFileContents(filePath: String) -> String {
+        do {
+            let fileString = try String(contentsOfFile: filePath)
+            return fileString
+        } catch {
+            return "No contents found"
+        }
     }
 
 }
