@@ -20,11 +20,24 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         fileNameTableView.setDataSource(self)
     }
     
-    func loadNotes() {
+    func loadNotes(query: String = "") {
+        print(query)
         print("Loading notes from " + directoryPath())
         let fs: NSFileManager = NSFileManager()
         let files = fs.enumeratorAtPath(directoryPath())
-        fileNames = files?.filter(isTextFile).map({(file) -> String in String(file)})
+        fileNames = files?.filter(isTextFile)
+                          .filter(queryFn(query))
+                          .map({(file) -> String in String(file)})
+    }
+    
+    func queryFn(query: String) -> (AnyObject) -> Bool {
+        return {(file: AnyObject) -> Bool in
+            if query == "" {
+                return true
+            } else {
+                return String(file).rangeOfString(query) != nil
+            }
+        }
     }
     
     @IBAction func newFile(sender: AnyObject) {
@@ -39,6 +52,12 @@ class ViewController: NSViewController, NSTableViewDataSource, NSTableViewDelega
         }
         
         loadNotes()
+        fileNameTableView.reloadData()
+    }
+    
+    @IBAction func searchFiles(sender: NSTextField) {
+        print("Search files")
+        loadNotes(sender.stringValue)
         fileNameTableView.reloadData()
     }
     
